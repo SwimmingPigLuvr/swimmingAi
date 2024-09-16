@@ -1,0 +1,19 @@
+wormwood collab?
+    animation
+    cell phone
+    text
+
+passholders get their own voice
+
+animated text is like a chat box basically
+
+username: "message"
+
+flexbox so that if there are many messages on screen they fit
+
+ignore bots.
+
+maybe ask questions to see if someone is a bot then flag them
+hey are you a bot?
+type the word sanko sanko sanko
+
