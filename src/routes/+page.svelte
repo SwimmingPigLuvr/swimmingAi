@@ -1,6 +1,9 @@
 <!-- src/routes/+page.svelte -->
 <script lang="ts">
   import { onMount } from "svelte";
+  import ChatBox from "../lib/components/ChatBox.svelte";
+
+  const currentUser = "swimmingPigLuvr";
 
   let audio: HTMLAudioElement;
   let pollingInterval: any;
@@ -47,3 +50,4 @@
   }
 </script>
 
+<ChatBox {messages} {currentUser} />

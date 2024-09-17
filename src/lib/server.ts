@@ -1,5 +1,5 @@
 // src/lib/server.ts
-import { OPENAI_API_KEY, XILABS_API_KEY } from '$env/static/private';
+import { OPENAI_API_KEY, ELEVEN_LABS_API_KEY } from '$env/static/private';
 import WebSocket from 'ws';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -8,7 +8,7 @@ import { ElevenLabsClient } from 'elevenlabs';
 
 // init xi client
 const elevenLabsClient = new ElevenLabsClient({
-  apiKey: XILABS_API_KEY,
+  apiKey: ELEVEN_LABS_API_KEY,
 });
 
 // voice ids
@@ -116,37 +116,26 @@ export async function generatePersonalizedResponse(
 }
 
 // Function to generate speech using ElevenLabs
-export async function generateSpeechWithElevenLabs(text: string): Promise<ArrayBuffer> {
-  const elevenLabsApiKey = XILABS_API_KEY;
-  const elevenLabsVoiceId = matthew;
+export async function generateSpeechWithElevenLabs(text: string): Promise<Buffer> {
+  try {
+    const audioStream = await elevenLabsClient.generate({
+      text: text,
+      voice: matthew,
+      model_id: 'eleven_monolingual_v1',
+    });
 
-  const speechResponse = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
-    {
-      method: 'POST',
-      headers: {
-        'Accept': 'audio/mpeg',
-        'Content-Type': 'application/json',
-        'xi-api-key': elevenLabsApiKey,
-      },
-      body: JSON.stringify({
-        text: text,
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.5,
-        },
-      }),
+    const chunks: Buffer[] = [];
+    for await (const chunk of audioStream) {
+      const bufferChunk = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      chunks.push(bufferChunk);
     }
-  );
 
-  if (!speechResponse.ok) {
-    console.error(
-      `Error from ElevenLabs API: ${speechResponse.status} ${speechResponse.statusText}`
-    );
-    throw new Error('Failed to generate speech');
-  } else {
-    const speechAudioBuffer = await speechResponse.arrayBuffer();
-    return speechAudioBuffer;
+    const audioBuffer = Buffer.concat(chunks);
+    return audioBuffer;
+
+  } catch (error) {
+      console.error('error from elevenlabs api: ', error);
+      throw new Error('failed to generate speech');
   }
 }
 
@@ -192,8 +181,9 @@ export function createWebSocketConnection() {
 
         // Check if the message might be from a bot
         if (isPotentialBotMessage(chatMessage)) {
-          console.log(`Ignored potential bot message from ${senderName}: ${chatMessage}`);
-          return; // Do not process this message
+          console.log(`potential bot message from ${senderName}: ${chatMessage}`);
+          // uncomment this return statement if we want to enable bot detection later
+          // return; 
         }
 
         // Get or initialize user memory

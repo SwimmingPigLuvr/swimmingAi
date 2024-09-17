@@ -10,7 +10,7 @@ export const GET: RequestHandler = async () => {
     return new Response(audioBuffer, {
       headers: {
         'Content-Type': 'audio/mpeg',
-        'Content-Length': audioBuffer.byteLength.toString(),
+        'Content-Length': audioBuffer.length.toString(),
       },
     });
   } else {
