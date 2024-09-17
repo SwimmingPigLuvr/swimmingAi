@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ElevenLabsClient } from 'elevenlabs';
+import { chat } from '$stores/chatStore';
 
 // init xi client
 const elevenLabsClient = new ElevenLabsClient({
@@ -213,6 +214,17 @@ export function createWebSocketConnection() {
 
         // Update user memory
         userMemories.set(senderName, userMemory);
+
+        // add the message to the chatStore
+        const chatMessageData: Message = {
+          id: message.data.eventHash,
+          username: senderName,
+          content: chatMessage,
+          timestamp: message.data.timestamp,
+          passHolder: false, // todo implement passholder check
+        };
+
+
       }
 
       // Handle 'GIFT' and other events similarly if needed

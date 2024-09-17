@@ -2,6 +2,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ChatBox from "../lib/components/ChatBox.svelte";
+  import { chat } from "$stores/chatBox";
 
   const currentUser = "swimmingPigLuvr";
 
@@ -50,4 +51,4 @@
   }
 </script>
 
-<ChatBox {messages} {currentUser} />
+<ChatBox messages={$chat} {currentUser} />

@@ -1,5 +1,5 @@
+<!-- src/lib/components/ChatBox.svelte -->
 <script lang="ts">
-    // chat boxes
     export let messages: Message[] = [];
     export let currentUser: string = "";
 
@@ -8,21 +8,33 @@
         username: string;
         content: string;
         timestamp: string;
-        passholder: boolean;
+        passHolder?: boolean;
     }
 
-    function showUserName(index: number) {
+    function shouldShowUsername(index: number): boolean {
         if (index === 0) return true;
         return messages[index - 1].username !== messages[index].username;
     }
+
+    import { onMount } from "svelte";
+
+    let chatContainer: HTMLDivElement;
+
+    $: scrollToBottom();
+
+    function scrollToBottom() {
+        if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }
 </script>
 
-<div class="chat-container">
+<div bind:this={chatContainer} class="chat-container">
     {#each messages as message, index}
         {#if message.username === currentUser}
             <div class="message-group">
-                {#if showUserName(index)}
-                    <div class="username">{currentUser}</div>
+                {#if shouldShowUsername(index)}
+                    <div class="username">You</div>
                 {/if}
                 <div class="message right">
                     {message.content}
@@ -30,10 +42,17 @@
             </div>
         {:else}
             <div class="message-group">
-                {#if showUserName(index)}
-                    <div class="username {message.passholder ? 'passholder' : ''}">
+                {#if shouldShowUsername(index)}
+                    <div
+                        class="username {message.passHolder
+                            ? 'passholder'
+                            : ''}"
+                    >
                         {message.username}
-                    </div> 
+                        {#if message.passHolder}
+                            <span class="passholder-icon"></span>
+                        {/if}
+                    </div>
                 {/if}
                 <div class="message left">
                     {message.content}
@@ -49,6 +68,7 @@
         flex-direction: column;
         padding: 16px;
         overflow-y: auto;
+        height: 100%; /* Adjust as needed */
     }
 
     .message-group {
@@ -68,14 +88,14 @@
 
     .message.left {
         align-self: flex-start;
-        background-color: #e5e5ea;
+        background-color: #f1f0f0;
         color: #000;
         border-top-left-radius: 0;
     }
 
     .message.right {
         align-self: flex-end;
-        background-color: #0b93f6;
+        background-color: #007aff;
         color: #fff;
         border-top-right-radius: 0;
     }
@@ -88,7 +108,22 @@
     }
 
     .username.passholder {
-        /* Style for passholder usernames */
         color: gold;
+        display: flex;
+        align-items: center;
+    }
+
+    .passholder-icon {
+        width: 16px;
+        height: 16px;
+        margin-left: 4px;
+        background-image: url("/icons/passholder.svg"); /* Replace with your icon path */
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+
+    .message {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     }
 </style>
