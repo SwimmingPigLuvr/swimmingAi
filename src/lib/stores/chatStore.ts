@@ -1,4 +1,4 @@
-// src/stores/chatStores.ts
+// src/lib/stores/chatStores.ts
 import { writable } from 'svelte/store';
 
 export interface Message {
@@ -10,4 +10,3 @@ export interface Message {
 }
 
 export const chat = writable<Message[]>([]);
-

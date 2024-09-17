@@ -5,7 +5,18 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ElevenLabsClient } from 'elevenlabs';
-import { chat } from '../stores/chatStore';
+import { chat } from '$lib/stores/chatStore';
+
+interface Message {
+    id: string;
+    username: string;
+    content: string;
+    timestamp: string;
+    passHolder?: boolean;
+}
+
+export const chatStore: Message[] = [];
+
 
 // init xi client
 const elevenLabsClient = new ElevenLabsClient({
@@ -143,7 +154,8 @@ export async function generateSpeechWithElevenLabs(text: string): Promise<Buffer
 // Function to check if a user holds your special pass (update logic as needed)
 function checkIfPassHolder(username: string): boolean {
   // Implement your logic here
-  // For example, check against a list of usernames
+  // TODO! manually add all passholders
+
   const passHolders = ['special_user1', 'special_user2'];
   return passHolders.includes(username);
 }
@@ -221,9 +233,13 @@ export function createWebSocketConnection() {
           username: senderName,
           content: chatMessage,
           timestamp: message.data.timestamp,
-          passHolder: false, // todo implement passholder check
+          passHolder: userMemory.passholder, // TODO! implement passholder check
         };
 
+        // here is where i want you to update my svelte store
+        // the store is called chat it is an array of type: Message
+        // the update i want to implement is adding the chatMessageData: Message, as a new Message obj in the array
+        chatStore.push(chatMessageData);
 
       }
 
