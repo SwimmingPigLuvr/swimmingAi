@@ -2,7 +2,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ChatBox from "../lib/components/ChatBox.svelte";
-  import { chat } from "$stores/chatBox";
+  import { chat } from "../stores/chatStore";
 
   const currentUser = "swimmingPigLuvr";
 

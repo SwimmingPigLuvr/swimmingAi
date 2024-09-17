@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ElevenLabsClient } from 'elevenlabs';
-import { chat } from '$stores/chatStore';
+import { chat } from '../stores/chatStore';
 
 // init xi client
 const elevenLabsClient = new ElevenLabsClient({
