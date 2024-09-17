@@ -2,16 +2,21 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  let audio = new Audio();
+  let audio: HTMLAudioElement;
   let pollingInterval: any;
 
   onMount(() => {
+    // Initialize the Audio object inside onMount
+    audio = new Audio();
+
     // Start polling for new audio
     pollingInterval = setInterval(fetchLatestAudio, 3000); // Poll every 3 seconds
 
     return () => {
       // Cleanup on component destroy
       clearInterval(pollingInterval);
+      // Clean up the audio object if necessary
+      audio = null;
     };
   });
 
@@ -42,4 +47,3 @@
   }
 </script>
 
-<!-- This component doesn't render any visible elements but plays audio when events occur -->

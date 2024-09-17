@@ -1,16 +1,30 @@
 // src/lib/server.ts
-import { OPENAI_API_KEY, ELEVEN_LABS_API_KEY } from '$env/static/private';
+import { OPENAI_API_KEY, XILABS_API_KEY } from '$env/static/private';
 import WebSocket from 'ws';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import { ElevenLabsClient } from 'elevenlabs';
+
+// init xi client
+const elevenLabsClient = new ElevenLabsClient({
+  apiKey: XILABS_API_KEY,
+});
 
 // voice ids
 const drJoe = '4eLfPJnUx5enYbF4ZGcJ';
 const matthew = '286VLndcKwmm1RxLQoOn';
 
 // Variable to store the latest audio buffer
-export let latestAudioBuffer: ArrayBuffer | null = null;
+let latestAudioBuffer: Buffer | null = null;
+
+export function getLatestAudioBuffer(): Buffer | null {
+  return latestAudioBuffer;
+}
+
+export function setLatestAudioBuffer(buffer: Buffer | null) {
+  latestAudioBuffer = buffer;
+}
 
 // Map to store user memories using usernames
 const userMemories = new Map<string, any>();
@@ -52,45 +66,50 @@ export async function generatePersonalizedResponse(
     console.error(`Error reading memory file: ${err}`);
   }
 
-  // Create a personalized prompt
-  let prompt = `${memoryFileContent}\n`;
-  prompt += `\nThis is your previous interaction with ${username}:\n`;
+  // conversation history
+  const messages = [
+    { role: 'system', content: memoryFileContent },
+  ];
 
+  // add prev interactions
   userMemory.messages.forEach((msg: any) => {
-    prompt += `- ${msg.content} (at ${msg.timestamp})\n`;
+    messages.push({ role: 'user', content: msg.content });
   });
 
+  // add current message
+  messages.push({ role: 'user', content: chatMessage });
+
+  // additional context for user memory
   if (userMemory.gifts.length > 0) {
-    prompt += `${username} has also sent you gifts before.\n`;
+    messages.push({ role: 'system', content: `${username} has also sent you gifts before.` });
   }
 
   if (userMemory.passHolder) {
-    prompt += `${username} holds your special pass and deserves extra attention.\n`;
+    messages.push({ role: 'system', content: `${username} holds your special pass and deserves extra attention.` });
   }
 
-  // Add the current message
-  prompt += `\n${username} says: "${chatMessage}"\n\nRespond appropriately.`;
-
-  const openAiResponse = await fetch('https://api.openai.com/v1/completions', {
+  const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${openAiApiKey}`,
     },
     body: JSON.stringify({
-      model: 'text-davinci-003',
-      prompt: prompt,
+      model: 'gpt-4o-mini',
+      messages: messages,
       max_tokens: 150,
       temperature: 0.7,
     }),
   });
 
   if (!openAiResponse.ok) {
+    const errorData = await openAiResponse.json();
     console.error(`Error from OpenAI API: ${openAiResponse.status} ${openAiResponse.statusText}`);
+    console.error(`Error details: ${JSON.stringify(errorData)}`);
     return `Sorry, I'm having trouble responding right now.`;
   } else {
     const openAiResponseData = await openAiResponse.json();
-    const generatedResponse = openAiResponseData.choices[0].text.trim();
+    const generatedResponse = openAiResponseData.choices[0].message.content.trim();
     console.log(`Generated response: ${generatedResponse}`);
     return generatedResponse;
   }
@@ -98,8 +117,8 @@ export async function generatePersonalizedResponse(
 
 // Function to generate speech using ElevenLabs
 export async function generateSpeechWithElevenLabs(text: string): Promise<ArrayBuffer> {
-  const elevenLabsApiKey = ELEVEN_LABS_API_KEY;
-  const elevenLabsVoiceId = 'your_voice_id'; // Replace with your ElevenLabs voice ID
+  const elevenLabsApiKey = XILABS_API_KEY;
+  const elevenLabsVoiceId = matthew;
 
   const speechResponse = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
@@ -200,7 +219,7 @@ export function createWebSocketConnection() {
         );
 
         // Generate speech with ElevenLabs
-        latestAudioBuffer = await generateSpeechWithElevenLabs(responseText);
+        setLatestAudioBuffer(await generateSpeechWithElevenLabs(responseText));
 
         // Update user memory
         userMemories.set(senderName, userMemory);
