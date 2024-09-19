@@ -2,19 +2,25 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ChatBox from "../lib/components/ChatBox.svelte";
-  import { chat } from "$lib/stores/chatStore";
+  import { chat } from "../lib/stores/chatStore";
 
-  const currentUser = "swimmingPigLuvr";
+  const currentUser = "SwimmingPigLuvr";
 
   let audio: HTMLAudioElement;
-  let pollingInterval: any;
+  let pollingInterval: NodeJS.Timeout;
 
   onMount(() => {
     // Initialize the Audio object inside onMount
     audio = new Audio();
 
+    // fetch messages
+    fetchMessages();
+
     // Start polling for new audio
-    pollingInterval = setInterval(fetchLatestAudio, 3000); // Poll every 3 seconds
+    pollingInterval = setInterval(() => {
+      fetchLatestAudio();
+      fetchMessages();
+    }, 3000);
 
     return () => {
       // Cleanup on component destroy
@@ -23,6 +29,21 @@
       audio = null;
     };
   });
+
+  async function fetchMessages() {
+    try {
+      const response = await fetch("/api/messages");
+      if (!response.ok) {
+        console.error("!response.ok");
+      }
+      const messages = await response.json();
+      console.log("fetched messages:", messages);
+      chat.set(messages);
+      console.log('chat: ', chat);
+    } catch (error) {
+      console.error("error fetching messages: ", error);
+    }
+  }
 
   async function fetchLatestAudio() {
     try {
@@ -51,4 +72,5 @@
   }
 </script>
 
-<ChatBox messages={$chat} {currentUser} />
+<ChatBox {currentUser} />
+test

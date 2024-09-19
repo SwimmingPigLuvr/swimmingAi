@@ -6,6 +6,22 @@ import fs from 'fs';
 import path from 'path';
 import { ElevenLabsClient } from 'elevenlabs';
 import { chat } from '$lib/stores/chatStore';
+import { v4 as uuidv4 } from 'uuid';
+
+const currentPassholders = [
+  "Herkules33",
+  "_dumb8_k1d",
+  "gitsmol",
+  "mo6cio",
+  "FriendlyFrigate",
+  "EarlyDuran",
+  "just_chillin_40",
+  "chondiis",
+  "bleakoff",
+  "babywerewolf5",
+  "Govvv001",
+  "0xUn1c0rn",
+];
 
 interface Message {
     id: string;
@@ -15,7 +31,41 @@ interface Message {
     passHolder?: boolean;
 }
 
-export const chatStore: Message[] = [];
+const initialMessages: Message[] = [
+  {
+    id: uuidv4(),
+    username: 'SwimmingPigLuvr',
+    content: 'Welcome to the chat!',
+    timestamp: new Date().toISOString(),
+    passHolder: true,
+  },
+  {
+    id: uuidv4(),
+    username: 'ChatUser123',
+    content: 'Hi everyone!',
+    timestamp: new Date().toISOString(),
+  },
+  {
+    id: uuidv4(),
+    username: 'FriendlyNeighbor',
+    content: 'Good morning!',
+    timestamp: new Date().toISOString(),
+  },
+  {
+    id: uuidv4(),
+    username: 'bleakoff',
+    content: 'Hello world!',
+    timestamp: new Date().toISOString(),
+  },
+  {
+    id: uuidv4(),
+    username: 'NatureLover',
+    content: 'Hey folks!',
+    timestamp: new Date().toISOString(),
+  },
+];
+
+export const chatStore: Message[] = initialMessages;
 
 
 // init xi client
@@ -151,15 +201,6 @@ export async function generateSpeechWithElevenLabs(text: string): Promise<Buffer
   }
 }
 
-// Function to check if a user holds your special pass (update logic as needed)
-function checkIfPassHolder(username: string): boolean {
-  // Implement your logic here
-  // TODO! manually add all passholders
-
-  const passHolders = ['special_user1', 'special_user2'];
-  return passHolders.includes(username);
-}
-
 // Create WebSocket connection and process events
 export function createWebSocketConnection() {
   const uniqueId = crypto.randomBytes(16).toString('hex');
@@ -210,7 +251,7 @@ export function createWebSocketConnection() {
         });
 
         // Update pass holder status
-        userMemory.passHolder = checkIfPassHolder(senderName);
+        userMemory.passHolder = currentPassholders.includes(senderName);
 
         console.log(`Processing message from ${senderName}: ${chatMessage}`);
 
@@ -220,6 +261,29 @@ export function createWebSocketConnection() {
           chatMessage,
           userMemory
         );
+        
+        // add the message to the chatStore
+        const chatMessageData: Message = {
+          id: message.data.eventHash,
+          username: senderName,
+          content: chatMessage,
+          timestamp: message.data.timestamp,
+          passHolder: userMemory.passholder,
+        };
+
+        chatStore.push(chatMessageData);
+
+
+        const aiResponseMessage: Message = {
+          id: uuidv4(),
+          username: 'SwimmingPigLuvr',
+          content: responseText,
+          timestamp: new Date().toISOString(),
+          passholder: false,
+        };
+
+        chatStore.push(aiResponseMessage);
+        console.log('ai message added to chatStore', aiResponseMessage);
 
         // Generate speech with ElevenLabs
         setLatestAudioBuffer(await generateSpeechWithElevenLabs(responseText));
@@ -227,20 +291,7 @@ export function createWebSocketConnection() {
         // Update user memory
         userMemories.set(senderName, userMemory);
 
-        // add the message to the chatStore
-        const chatMessageData: Message = {
-          id: message.data.eventHash,
-          username: senderName,
-          content: chatMessage,
-          timestamp: message.data.timestamp,
-          passHolder: userMemory.passholder, // TODO! implement passholder check
-        };
-
-        // here is where i want you to update my svelte store
-        // the store is called chat it is an array of type: Message
-        // the update i want to implement is adding the chatMessageData: Message, as a new Message obj in the array
-        chatStore.push(chatMessageData);
-
+        
       }
 
       // Handle 'GIFT' and other events similarly if needed

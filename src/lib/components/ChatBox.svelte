@@ -1,22 +1,32 @@
 <!-- src/lib/components/ChatBox.svelte -->
 <script lang="ts">
-    export let messages: Message[] = [];
-    export let currentUser: string = "";
+    import { onDestroy } from "svelte";
+    import { chat } from "../stores/chatStore";
 
     interface Message {
         id: string;
         username: string;
         content: string;
         timestamp: string;
-        passHolder?: boolean;
+        passholder: boolean;
     }
 
-    function shouldShowUsername(index: number): boolean {
+    export let currentUser: string = "";
+
+    $: messages = $chat;
+    const unsubscribe = chat.subscribe((value) => {
+        messages = value;
+        console.log("messages in chatbox:", messages);
+    });
+
+    onDestroy(() => {
+        unsubscribe();
+    });
+
+    function shouldShowUsername(index: number, messages: Message[]): boolean {
         if (index === 0) return true;
-        return messages[index - 1].username !== messages[index].username;
+        return messages[index - 1]?.username !== messages[index]?.username;
     }
-
-    import { onMount } from "svelte";
 
     let chatContainer: HTMLDivElement;
 
@@ -29,101 +39,45 @@
     }
 </script>
 
-<div bind:this={chatContainer} class="chat-container">
-    {#each messages as message, index}
+<div
+    bind:this={chatContainer}
+    class="m-auto flex flex-col space-y-3 p-4 overflow-y-auto h-full"
+>
+    {#each messages as message, index (message.id)}
         {#if message.username === currentUser}
-            <div class="message-group">
-                {#if shouldShowUsername(index)}
-                    <div class="username">You</div>
+            <!-- ai messages -->
+            <div class="flex flex-col mb-2 items-end">
+                {#if shouldShowUsername(index, messages)}
+                    <div class="text-xs -tracking-wide mb-0 mr-1 text-right">
+                        {currentUser}
+                    </div>
                 {/if}
-                <div class="message right">
+                <div
+                    class="max-w-[60%] px-4 py-2 bg-blue-700 text-white rounded-2xl rounded-tr-none text-base font-sans"
+                >
                     {message.content}
                 </div>
             </div>
         {:else}
-            <div class="message-group">
-                {#if shouldShowUsername(index)}
-                    <div
-                        class="username {message.passHolder
-                            ? 'passholder'
-                            : ''}"
-                    >
+            <!-- chats from viewers -->
+            <div class="flex flex-col mb-2 items-start">
+                {#if shouldShowUsername(index, messages)}
+                    <div class="text-xs mb-0 ml-1">
                         {message.username}
-                        {#if message.passHolder}
-                            <span class="passholder-icon"></span>
+                        {#if message.passholder}
+                            <span
+                                class="inline-block w-4 h-4 ml-1 bg-no-repeat bg-contain"
+                                style="background-image: url('/icons/pass.png');"
+                            ></span>
                         {/if}
                     </div>
                 {/if}
-                <div class="message left">
+                <div
+                    class="max-w-[60% px-4 py-2 bg-gray-200 text-black rounded-2xl rounded-tl-none text-base font-sans]"
+                >
                     {message.content}
                 </div>
             </div>
         {/if}
     {/each}
 </div>
-
-<style>
-    .chat-container {
-        display: flex;
-        flex-direction: column;
-        padding: 16px;
-        overflow-y: auto;
-        height: 100%; /* Adjust as needed */
-    }
-
-    .message-group {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 8px;
-    }
-
-    .message {
-        max-width: 60%;
-        padding: 10px 14px;
-        border-radius: 20px;
-        margin-bottom: 4px;
-        word-wrap: break-word;
-        font-size: 16px;
-    }
-
-    .message.left {
-        align-self: flex-start;
-        background-color: #f1f0f0;
-        color: #000;
-        border-top-left-radius: 0;
-    }
-
-    .message.right {
-        align-self: flex-end;
-        background-color: #007aff;
-        color: #fff;
-        border-top-right-radius: 0;
-    }
-
-    .username {
-        font-size: 14px;
-        font-weight: bold;
-        margin-bottom: 4px;
-        margin-left: 4px;
-    }
-
-    .username.passholder {
-        color: gold;
-        display: flex;
-        align-items: center;
-    }
-
-    .passholder-icon {
-        width: 16px;
-        height: 16px;
-        margin-left: 4px;
-        background-image: url("/icons/passholder.svg"); /* Replace with your icon path */
-        background-size: contain;
-        background-repeat: no-repeat;
-    }
-
-    .message {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-            Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    }
-</style>
