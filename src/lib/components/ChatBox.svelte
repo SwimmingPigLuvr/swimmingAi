@@ -1,17 +1,9 @@
 <!-- src/lib/components/ChatBox.svelte -->
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
-    import { chat } from "../stores/chatStore";
+    import { chat, type Message } from "../stores/chatStore";
     import { fade, fly } from "svelte/transition";
     import { backOut } from "svelte/easing";
-
-    interface Message {
-        id: string;
-        username: string;
-        content: string;
-        timestamp: string;
-        passholder: boolean;
-    }
 
     export let currentUser: string = "";
 
@@ -27,7 +19,7 @@
 
     function shouldShowUsername(index: number, messages: Message[]): boolean {
         if (index === 0) return true;
-        return messages[index - 1]?.username !== messages[index]?.username;
+        return messages[index - 1]?.user.username !== messages[index]?.user.username;
     }
 
     let chatContainer: HTMLDivElement;
@@ -49,10 +41,10 @@
 
 <div
     bind:this={chatContainer}
-    class="m-auto flex flex-col space-y-3 p-4 overflow-y-auto h-full"
+    class="m-auto flex flex-col space-y-3 p-2 overflow-y-auto h-full"
 >
     {#each messages as message, index (message.id)}
-        {#if message.username === currentUser}
+        {#if message.user.username === currentUser}
             <!-- ai messages -->
             <div
                 in:fade={{ duration: 5000 }}
@@ -70,7 +62,7 @@
                         </div>
                     {/if}
                     <div
-                        class="max-w-[80%] px-4 py-2 bg-blue-700 text-white rounded-2xl rounded-tr-none text-base font-sans"
+                        class="max-w-[80%] px-4 py-2 bg-blue-700 text-white rounded-2xl rounded-tr-none text-base font-mono -tracking-widest"
                     >
                         {message.content}
                     </div>
@@ -81,20 +73,30 @@
             <div class="flex flex-col mb-2 items-start">
                 {#if shouldShowUsername(index, messages)}
                     <div class="text-xs mb-0 ml-1">
-                        {message.username}
+                        <p>{message.user.username}</p>
+                        <p class="-tracking-widest text-[0.7em] text-gray-400">
+                            @{message.timestamp}
+                        </p>
                         {#if message.passholder}
                             🪲
                             <span
                                 class="inline-block w-4 h-4 ml-1 bg-no-repeat bg-contain"
-                                style="background-image: url('/icons/pass.png');"
+                                style="background-image: src('/icons/pass.png');"
                             ></span>
                         {/if}
                     </div>
                 {/if}
-                <div
-                    class="max-w-[80% px-4 py-2 bg-gray-200 text-black rounded-2xl rounded-tl-none text-base font-sans]"
-                >
-                    {message.content}
+                <div class="flex space-x-1 max-w-[80%] items-end">
+                    <img
+                        src={message.user.pfp}
+                        alt=""
+                        class="rounded-none w-8 h-8"
+                    />
+                    <div
+                        class=" px-4 py-2 bg-gray-200 text-black rounded-2xl rounded-tl-none font-mono -tracking-widest"
+                    >
+                        {message.content}
+                    </div>
                 </div>
             </div>
         {/if}

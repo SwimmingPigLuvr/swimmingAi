@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ElevenLabsClient } from 'elevenlabs';
-import { chat } from '$lib/stores/chatStore';
+import { chat, type Message } from '$lib/stores/chatStore';
 import { v4 as uuidv4 } from 'uuid';
 
 const currentPassholders = [
@@ -23,43 +23,50 @@ const currentPassholders = [
   "0xUn1c0rn",
 ];
 
-interface Message {
-    id: string;
-    username: string;
-    content: string;
-    timestamp: string;
-    passHolder?: boolean;
-}
-
 const initialMessages: Message[] = [
   {
     id: uuidv4(),
-    username: 'SwimmingPigLuvr',
+    user: {
+      username: 'SwimmingPigLuvr',
+    },
     content: 'Welcome to the chat!',
     timestamp: new Date().toISOString(),
     passHolder: true,
   },
   {
     id: uuidv4(),
-    username: 'ChatUser123',
+    user: {
+      username: 'ChatUser123',
+      pfp: 'pfps/coh.webp'
+    },
     content: 'Hi everyone!',
     timestamp: new Date().toISOString(),
   },
   {
     id: uuidv4(),
-    username: 'FriendlyNeighbor',
+    user: {
+      username: 'FriendlyNeighbor',
+      pfp: 'pfps/wow.jpeg'
+    },
     content: 'Good morning!',
     timestamp: new Date().toISOString(),
   },
   {
     id: uuidv4(),
-    username: 'bleakoff',
+    user: {
+      username: 'bleakoff',
+      pfp: '/pfps/you.jpeg'
+    },
     content: 'Hello world!',
     timestamp: new Date().toISOString(),
+    passholder: true
   },
   {
     id: uuidv4(),
-    username: 'NatureLover',
+    user: {
+      username: 'NatureLover',
+      pfp: 'pfps/drive.jpeg'
+    },
     content: 'Hey folks!',
     timestamp: new Date().toISOString(),
   },

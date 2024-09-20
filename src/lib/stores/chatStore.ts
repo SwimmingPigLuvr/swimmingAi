@@ -3,7 +3,10 @@ import { writable } from 'svelte/store';
 
 export interface Message {
     id: string;
-    username: string;
+    user: {
+        username: string;
+        pfp?: string;
+    };
     content: string;
     timestamp: string;
     passholder: boolean;
