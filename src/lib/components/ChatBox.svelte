@@ -1,7 +1,9 @@
 <!-- src/lib/components/ChatBox.svelte -->
 <script lang="ts">
-    import { onDestroy } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { chat } from "../stores/chatStore";
+    import { fade, fly } from "svelte/transition";
+    import { backOut } from "svelte/easing";
 
     interface Message {
         id: string;
@@ -13,7 +15,7 @@
 
     export let currentUser: string = "";
 
-    $: messages = $chat;
+    let messages: Message[] = [];
     const unsubscribe = chat.subscribe((value) => {
         messages = value;
         console.log("messages in chatbox:", messages);
@@ -30,7 +32,13 @@
 
     let chatContainer: HTMLDivElement;
 
-    $: scrollToBottom();
+    onMount(() => {
+        scrollToBottom();
+    });
+
+    $: if (messages) {
+        scrollToBottom();
+    }
 
     function scrollToBottom() {
         if (chatContainer) {
@@ -46,16 +54,26 @@
     {#each messages as message, index (message.id)}
         {#if message.username === currentUser}
             <!-- ai messages -->
-            <div class="flex flex-col mb-2 items-end">
-                {#if shouldShowUsername(index, messages)}
-                    <div class="text-xs -tracking-wide mb-0 mr-1 text-right">
-                        {currentUser}
-                    </div>
-                {/if}
+            <div
+                in:fade={{ duration: 5000 }}
+                class="flex flex-col mb-2 items-end"
+            >
                 <div
-                    class="max-w-[60%] px-4 py-2 bg-blue-700 text-white rounded-2xl rounded-tr-none text-base font-sans"
+                    in:fly={{ x: 100, duration: 1000, easing: backOut }}
+                    class="flex flex-col w-full justify-end items-end"
                 >
-                    {message.content}
+                    {#if shouldShowUsername(index, messages)}
+                        <div
+                            class="text-xs -tracking-wide mb-0 mr-1 text-right"
+                        >
+                            {currentUser}
+                        </div>
+                    {/if}
+                    <div
+                        class="max-w-[80%] px-4 py-2 bg-blue-700 text-white rounded-2xl rounded-tr-none text-base font-sans"
+                    >
+                        {message.content}
+                    </div>
                 </div>
             </div>
         {:else}
@@ -65,6 +83,7 @@
                     <div class="text-xs mb-0 ml-1">
                         {message.username}
                         {#if message.passholder}
+                            🪲
                             <span
                                 class="inline-block w-4 h-4 ml-1 bg-no-repeat bg-contain"
                                 style="background-image: url('/icons/pass.png');"
@@ -73,7 +92,7 @@
                     </div>
                 {/if}
                 <div
-                    class="max-w-[60% px-4 py-2 bg-gray-200 text-black rounded-2xl rounded-tl-none text-base font-sans]"
+                    class="max-w-[80% px-4 py-2 bg-gray-200 text-black rounded-2xl rounded-tl-none text-base font-sans]"
                 >
                     {message.content}
                 </div>

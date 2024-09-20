@@ -2,7 +2,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ChatBox from "../lib/components/ChatBox.svelte";
-  import { chat } from "../lib/stores/chatStore";
+  import { chat, type Message } from "../lib/stores/chatStore";
 
   const currentUser = "SwimmingPigLuvr";
 
@@ -36,9 +36,17 @@
       if (!response.ok) {
         console.error("!response.ok");
       }
-      const messages = await response.json();
-      console.log("fetched messages:", messages);
-      chat.set(messages);
+      const newMessages: Message[] = await response.json();
+
+      chat.update((currentMessages) => {
+        const messageIds = new Set(currentMessages.map((msg) => msg.id));
+        // filter out existing messages
+        const uniqueNewMessages = newMessages.filter((msg) => !messageIds.has(msg.id));
+        // combine current messages with unique messages
+        return [...currentMessages, ...uniqueNewMessages];
+      });
+      // console.log("fetched messages:", messages);
+      // chat.set(messages);
       console.log('chat: ', chat);
     } catch (error) {
       console.error("error fetching messages: ", error);
