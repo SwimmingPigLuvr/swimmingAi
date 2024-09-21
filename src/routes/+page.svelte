@@ -41,13 +41,14 @@
       chat.update((currentMessages) => {
         const messageIds = new Set(currentMessages.map((msg) => msg.id));
         // filter out existing messages
-        const uniqueNewMessages = newMessages.filter((msg) => !messageIds.has(msg.id));
+        const uniqueNewMessages = newMessages.filter(
+          (msg) => !messageIds.has(msg.id),
+        );
         // combine current messages with unique messages
         return [...currentMessages, ...uniqueNewMessages];
       });
-      // console.log("fetched messages:", messages);
+      // old method
       // chat.set(messages);
-      console.log('chat: ', chat);
     } catch (error) {
       console.error("error fetching messages: ", error);
     }
@@ -70,7 +71,6 @@
         };
       } else if (response.status === 204) {
         // No new audio
-        console.log("No new audio");
       } else {
         console.error("Failed to fetch audio");
       }
@@ -81,4 +81,3 @@
 </script>
 
 <ChatBox {currentUser} />
-test

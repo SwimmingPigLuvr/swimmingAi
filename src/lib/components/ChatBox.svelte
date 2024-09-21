@@ -10,7 +10,6 @@
     let messages: Message[] = [];
     const unsubscribe = chat.subscribe((value) => {
         messages = value;
-        console.log("messages in chatbox:", messages);
     });
 
     onDestroy(() => {
@@ -19,7 +18,10 @@
 
     function shouldShowUsername(index: number, messages: Message[]): boolean {
         if (index === 0) return true;
-        return messages[index - 1]?.user.username !== messages[index]?.user.username;
+        return (
+            messages[index - 1]?.user.username !==
+            messages[index]?.user.username
+        );
     }
 
     let chatContainer: HTMLDivElement;
@@ -41,59 +43,85 @@
 
 <div
     bind:this={chatContainer}
-    class="m-auto flex flex-col space-y-3 p-2 overflow-y-auto h-full"
+    class="w-full flex flex-col space-y-3 p-2 overflow-y-auto h-screen"
 >
     {#each messages as message, index (message.id)}
-        {#if message.user.username === currentUser}
-            <!-- ai messages -->
-            <div
-                in:fade={{ duration: 5000 }}
-                class="flex flex-col mb-2 items-end"
-            >
-                <div
-                    in:fly={{ x: 100, duration: 1000, easing: backOut }}
-                    class="flex flex-col w-full justify-end items-end"
-                >
-                    {#if shouldShowUsername(index, messages)}
-                        <div
-                            class="text-xs -tracking-wide mb-0 mr-1 text-right"
-                        >
-                            {currentUser}
-                        </div>
-                    {/if}
+        {#if message.user?.username === currentUser}
+            <div class="flex space-x-1 justify-end items-end">
+                <!-- my messages / ai messages -->
+                <div in:fade={{ duration: 5000 }} class="flex flex-col items-">
                     <div
-                        class="max-w-[80%] px-4 py-2 bg-blue-700 text-white rounded-2xl rounded-tr-none text-base font-mono -tracking-widest"
+                        in:fly={{ x: 100, duration: 1000, easing: backOut }}
+                        class="flex flex-col w-full justify-end items-end"
                     >
-                        {message.content}
+                        {#if shouldShowUsername(index, messages)}
+                            <div class="text-xs -tracking-wide mr-1 text-right">
+                                {currentUser}
+                            </div>
+                        {/if}
+                        <div
+                            class="max-w-[80%] px-4 py-2 bg-blue-700 text-white rounded-xl rounded-tr-none text-base font-mono -tracking-widest"
+                        >
+                            {message.content}
+                        </div>
                     </div>
                 </div>
-            </div>
-        {:else}
-            <!-- chats from viewers -->
-            <div class="flex flex-col mb-2 items-start">
-                {#if shouldShowUsername(index, messages)}
-                    <div class="text-xs mb-0 ml-1">
-                        <p>{message.user.username}</p>
-                        <p class="-tracking-widest text-[0.7em] text-gray-400">
-                            @{message.timestamp}
-                        </p>
-                        {#if message.passholder}
-                            🪲
-                            <span
-                                class="inline-block w-4 h-4 ml-1 bg-no-repeat bg-contain"
-                                style="background-image: src('/icons/pass.png');"
-                            ></span>
-                        {/if}
-                    </div>
-                {/if}
-                <div class="flex space-x-1 max-w-[80%] items-end">
+                {#if message.user.pfp}
                     <img
                         src={message.user.pfp}
                         alt=""
-                        class="rounded-none w-8 h-8"
+                        class="rounded-full w-8 h-8 object-cover"
                     />
+                {:else}
                     <div
-                        class=" px-4 py-2 bg-gray-200 text-black rounded-2xl rounded-tl-none font-mono -tracking-widest"
+                        class="rounded-full w-8 h-8 bg-gray-300 flex items-center justify-center"
+                    >
+                        {#if message.user?.username}
+                            {message.user.username.charAt(0)}
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+        {:else}
+            <!-- chats from viewers -->
+            <div class="flex space-x-1 items-end max-w-[80%]">
+                {#if message.user.pfp}
+                    <img
+                        src={message.user.pfp}
+                        alt=""
+                        class=" rounded-full w-8 h-8 object-cover"
+                    />
+                {:else}
+                    <div
+                        class="rounded-full w-8 h-8 bg-gray-300 flex items-center justify-center"
+                    >
+                        {#if message.user?.username}
+                            {message.user.username.charAt(0)}
+                        {/if}
+                    </div>
+                {/if}
+                <div class="flex flex-col justify-end">
+                    {#if shouldShowUsername(index, messages)}
+                        <div class="text-xs ml-1">
+                            <div class="flex space-x-1">
+                                {#if message.passholder}
+                                    <img
+                                        src="/icons/pass.png"
+                                        alt=""
+                                        class="w-4 h-4"
+                                    />
+                                {/if}
+                                <p>{message.user.username}</p>
+                            </div>
+                            <p
+                                class="-tracking-widest text-[0.7em] text-gray-400"
+                            >
+                                @{message.timestamp}
+                            </p>
+                        </div>
+                    {/if}
+                    <div
+                        class="px-3 py-1 bg-gray-200 text-black rounded-xl rounded-tl-none font-mono -tracking-widest"
                     >
                         {message.content}
                     </div>

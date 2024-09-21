@@ -272,18 +272,24 @@ export function createWebSocketConnection() {
         // add the message to the chatStore
         const chatMessageData: Message = {
           id: message.data.eventHash,
-          username: senderName,
+          user: {
+            username: senderName,
+          },
           content: chatMessage,
           timestamp: message.data.timestamp,
           passHolder: userMemory.passholder,
         };
 
         chatStore.push(chatMessageData);
+        console.log('pushed data', chatMessageData);
 
 
         const aiResponseMessage: Message = {
           id: uuidv4(),
-          username: 'SwimmingPigLuvr',
+          user: {
+            username: 'SwimmingPigLuvr',
+            pfp: '/pfps/swimming.png',
+          },
           content: responseText,
           timestamp: new Date().toISOString(),
           passholder: false,
