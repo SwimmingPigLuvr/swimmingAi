@@ -189,8 +189,13 @@ export async function generateSpeechWithElevenLabs(text: string): Promise<Buffer
   try {
     const audioStream = await elevenLabsClient.generate({
       text: text,
-      voice: matthew,
+      voice: drJoe,
       model_id: 'eleven_monolingual_v1',
+      voice_settings: {
+        stability: 0.1,
+        similarity_boost: 0.3,
+        style: 0.9
+      }
     });
 
     const chunks: Buffer[] = [];

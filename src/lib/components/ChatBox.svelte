@@ -43,7 +43,7 @@
 
 <div
     bind:this={chatContainer}
-    class="w-full flex flex-col space-y-3 p-2 overflow-y-auto h-screen"
+    class="bg-black rounded-[100px] pt-28 w-full flex flex-col space-y-8 p-4 overflow-y-auto h-screen"
 >
     {#each messages as message, index (message.id)}
         {#if message.user?.username === currentUser}
@@ -55,12 +55,14 @@
                         class="flex flex-col w-full justify-end items-end"
                     >
                         {#if shouldShowUsername(index, messages)}
-                            <div class="text-xs -tracking-wide mr-1 text-right">
+                            <div
+                                class="text-white -tracking-wide mr-1 text-left"
+                            >
                                 {currentUser}
                             </div>
                         {/if}
                         <div
-                            class="max-w-[80%] px-4 py-2 bg-blue-700 text-white rounded-xl rounded-tr-none text-base font-mono -tracking-widest"
+                            class="text-5xl max-w-[70%] px-12 py-8 bg-blue-700 text-white rounded-[50px] font-black rounded-tr-none font-mono -tracking-wide leading-snug"
                         >
                             {message.content}
                         </div>
@@ -70,11 +72,11 @@
                     <img
                         src={message.user.pfp}
                         alt=""
-                        class="rounded-full w-8 h-8 object-cover"
+                        class="rounded-full w-20 h-20 object-cover"
                     />
                 {:else}
                     <div
-                        class="rounded-full w-8 h-8 bg-gray-300 flex items-center justify-center"
+                        class="rounded-full w-20 h-20 bg-gray-300 flex items-center justify-center"
                     >
                         {#if message.user?.username}
                             {message.user.username.charAt(0)}
@@ -84,16 +86,16 @@
             </div>
         {:else}
             <!-- chats from viewers -->
-            <div class="flex space-x-1 items-end max-w-[80%]">
+            <div class="flex space-x-2 items-end max-w-[70%]">
                 {#if message.user.pfp}
                     <img
                         src={message.user.pfp}
                         alt=""
-                        class=" rounded-full w-8 h-8 object-cover"
+                        class=" rounded-full w-20 h-20 object-cover"
                     />
                 {:else}
                     <div
-                        class="rounded-full w-8 h-8 bg-gray-300 flex items-center justify-center"
+                        class="rounded-full w-20 h-20 bg-gray-300 flex items-center justify-center"
                     >
                         {#if message.user?.username}
                             {message.user.username.charAt(0)}
@@ -108,20 +110,20 @@
                                     <img
                                         src="/icons/pass.png"
                                         alt=""
-                                        class="w-4 h-4"
+                                        class="w-8 h-8"
                                     />
                                 {/if}
-                                <p>{message.user.username}</p>
+                                <p class="text-4xl text-white font-black">
+                                    {message.user.username}
+                                </p>
                             </div>
-                            <p
-                                class="-tracking-widest text-[0.7em] text-gray-400"
-                            >
+                            <p class="text-xl -tracking-widest text-gray-400">
                                 @{message.timestamp}
                             </p>
                         </div>
                     {/if}
                     <div
-                        class="px-3 py-1 bg-gray-200 text-black rounded-xl rounded-tl-none font-mono -tracking-widest"
+                        class="font-black leading-snug text-5xl px-12 py-8 bg-gray-200 text-black rounded-[50px] rounded-tl-none font-mono -tracking-wide"
                     >
                         {message.content}
                     </div>
