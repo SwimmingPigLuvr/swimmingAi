@@ -126,7 +126,7 @@ export async function generatePersonalizedResponse(
   userMemory: any
 ): Promise<string> {
   const openAiApiKey = OPENAI_API_KEY;
-  const memoryFilePath = 'memory/global_memory.txt'; // Global memory or instructions
+  const memoryFilePath = 'memory/aplha.txt'; // Global memory or instructions
 
   let memoryFileContent = '';
   try {

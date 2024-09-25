@@ -3,8 +3,12 @@
   import { onMount } from "svelte";
   import ChatBox from "../lib/components/ChatBox.svelte";
   import { chat, type Message } from "../lib/stores/chatStore";
+  import Terminal from "../lib/components/Terminal.svelte";
 
   const currentUser = "SwimmingPigLuvr";
+
+  let chatBox = false;
+  let terminal = true;
 
   let audio: HTMLAudioElement;
   let pollingInterval: NodeJS.Timeout;
@@ -80,4 +84,8 @@
   }
 </script>
 
-<ChatBox {currentUser} />
+{#if chatBox}
+  <ChatBox {currentUser} />
+{:else if terminal}
+  <Terminal {currentUser} />
+{/if}
