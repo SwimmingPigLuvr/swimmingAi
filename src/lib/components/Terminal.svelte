@@ -64,11 +64,11 @@
 
 <div
     bind:this={chatContainer}
-    class=" bg-black pt-28 w-full flex flex-col space-y-8 p-4 overflow-y-auto h-screen"
+    class="bg-black w-full flex flex-col space-y8 p-4 overflow-y-auto h-screen"
 >
     {#each messages as message, index (message.id)}
         {#if message.user?.username === currentUser}
-            <div class="flex space-x-2 items-center">
+            <div class="my-2 flex items-center">
                 <!-- my messages / ai messages -->
                 <div
                     in:fade={{ duration: 5000 }}
@@ -76,18 +76,18 @@
                 >
                     <div
                         in:fly={{ x: 100, duration: 1000, easing: backOut }}
-                        class="flex space-x-2 w-full items-center"
+                        class="flex flex-col space-y-2 w-full items-start"
                     >
                         {#if message.user.pfp}
                             <img
                                 src={message.user.pfp}
                                 alt=""
-                                class="rounded-none w-20 h-full object-cover mr-2"
+                                class="border-2 border-black rounded-none w-10 h-full object-cover"
                             />
                         {:else}
-                            <div class="text-xs text-gray-600">
+                            <!-- <div class="text-xs text-gray-600">
                                 {parseTimestampToEnglish(message.timestamp)}
-                            </div>
+                            </div> -->
                         {/if}
                         {#if shouldShowUsername(index, messages)}
                             <div class="text-xs text-white">
@@ -95,7 +95,7 @@
                             </div>
                         {/if}
                         <div
-                            class="max-w-[70%] text-sky-400 font-mono -tracking-wide leading-snug"
+                            class="text-red-400 font-mono -tracking-wide leading-snug"
                         >
                             {message.content}
                         </div>
@@ -104,7 +104,7 @@
             </div>
         {:else}
             <!-- chats from viewers -->
-            <div class="flex space-x-2 items-center max-w-[70%]">
+            <div class="flex space-x-2 items-center">
                 {#if message.user.pfp}
                     <img
                         src={message.user.pfp}
@@ -121,9 +121,9 @@
                     </div>
                 {/if}
                 {#if shouldShowUsername(index, messages)}
-                    <p class="text-xs -tracking-widest text-gray-600">
+                    <!-- <p class="text-xs -tracking-widest text-gray-600">
                         {parseTimestampToEnglish(message.timestamp)}
-                    </p>
+                    </p> -->
                     <div class="text-xs ml-1">
                         <div class="flex space-x-1">
                             {#if message.passholder}
