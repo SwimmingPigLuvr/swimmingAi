@@ -7,8 +7,8 @@
 
   const currentUser = "SwimmingPigLuvr";
 
-  let chatBox = false;
-  let terminal = true;
+  let chatBox = true;
+  let terminal = false;
 
   let audio: HTMLAudioElement;
   let pollingInterval: NodeJS.Timeout;
