@@ -126,7 +126,8 @@ export async function generatePersonalizedResponse(
   userMemory: any
 ): Promise<string> {
   const openAiApiKey = OPENAI_API_KEY;
-  const memoryFilePath = 'memory/aplha.txt'; // Global memory or instructions
+  // const memoryFilePath = 'memory/schwab.txt'; // Global memory or instructions
+  const memoryFilePath = 'memory/global_memory.txt'; // Global memory or instructions
 
   let memoryFileContent = '';
   try {
@@ -189,7 +190,7 @@ export async function generateSpeechWithElevenLabs(text: string): Promise<Buffer
   try {
     const audioStream = await elevenLabsClient.generate({
       text: text,
-      voice: drJoe,
+      voice: matthew,
       model_id: 'eleven_monolingual_v1',
       voice_settings: {
         stability: 0.1,

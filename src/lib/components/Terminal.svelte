@@ -95,7 +95,7 @@
                             </div>
                         {/if}
                         <div
-                            class="text-red-400 font-mono -tracking-wide leading-snug"
+                            class="font-mono text-lime-400 terminal-glow text-3xl  -tracking-wide"
                         >
                             {message.content}
                         </div>
@@ -140,7 +140,7 @@
                     </div>
                 {/if}
                 <div
-                    class="leading-snug text-lime-400 font-mono -tracking-widest"
+                    class="text-3xl terminal-glow leading-snug text-lime-400 font-mono -tracking-widest"
                 >
                     {message.content}
                 </div>
@@ -148,3 +148,13 @@
         {/if}
     {/each}
 </div>
+
+<style>
+    .terminal-glow {
+        text-shadow:
+            0 0 1px (255, 255, 255)
+            0 0 2px (255, 255, 255)
+            0 0 3px (255, 255, 255)
+            0 0 4px (255, 255, 255);
+    }
+</style>
