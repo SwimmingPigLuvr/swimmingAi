@@ -43,7 +43,7 @@
 
 <div
     bind:this={chatContainer}
-    class="bg-black w-full flex flex-col space-y-2 p-4 overflow-y-auto h-screen"
+    class="bg-transparent w-full flex flex-col space-y-2 p-4 overflow-y-auto h-screen"
 >
     {#each messages as message, index (message.id)}
         {#if message.user?.username === currentUser}

@@ -3,7 +3,8 @@
     import { onDestroy, onMount } from "svelte";
     import { chat, type Message } from "../stores/chatStore";
     import { fade, fly } from "svelte/transition";
-    import { backOut } from "svelte/easing";
+    import { backOut, cubicInOut } from "svelte/easing";
+    import { spring } from "svelte/motion";
 
     export let currentUser: string = "";
 
@@ -67,94 +68,47 @@
     class="bg-black w-full flex flex-col space-y8 p-4 overflow-y-auto h-screen"
 >
     {#each messages as message, index (message.id)}
-        {#if message.user?.username === currentUser}
-            <div class="my-2 flex items-center">
-                <!-- my messages / ai messages -->
-                <div
-                    in:fade={{ duration: 5000 }}
-                    class=" flex space-x-2 items-center"
-                >
-                    <div
-                        in:fly={{ x: 100, duration: 1000, easing: backOut }}
-                        class="flex flex-col space-y-2 w-full items-start"
-                    >
-                        {#if message.user.pfp}
-                            <img
-                                src={message.user.pfp}
-                                alt=""
-                                class="border-2 border-black rounded-none w-10 h-full object-cover"
-                            />
-                        {:else}
-                            <!-- <div class="text-xs text-gray-600">
-                                {parseTimestampToEnglish(message.timestamp)}
-                            </div> -->
-                        {/if}
-                        {#if shouldShowUsername(index, messages)}
-                            <div class="text-xs text-white">
-                                {currentUser}:
-                            </div>
-                        {/if}
-                        <div
-                            class="font-mono text-lime-400 terminal-glow text-3xl  -tracking-wide"
-                        >
-                            {message.content}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {:else}
-            <!-- chats from viewers -->
-            <div class="flex space-x-2 items-center">
+        <div class="my-1 flex items-start">
+            <div
+                in:fly={{ y: 20, duration: 500, easing: cubicInOut }}
+                class="flex space-x-2 items-start"
+            >
                 {#if message.user.pfp}
                     <img
                         src={message.user.pfp}
                         alt=""
-                        class="rounded-none w-auto h-4"
+                        class="border-2 border-black rounded-full w-8 h-8 object-cover"
                     />
                 {:else}
                     <div
-                        class="rounded-none w-4 h-4 bg-gray-300 flex items-center justify-center"
+                        class="rounded-full text-xl w-8 h-8 border-red-700 border-2 text-white font-black flex items-center justify-center"
                     >
                         {#if message.user?.username}
                             {message.user.username.charAt(0)}
                         {/if}
                     </div>
                 {/if}
-                {#if shouldShowUsername(index, messages)}
-                    <!-- <p class="text-xs -tracking-widest text-gray-600">
-                        {parseTimestampToEnglish(message.timestamp)}
-                    </p> -->
-                    <div class="text-xs ml-1">
-                        <div class="flex space-x-1">
-                            {#if message.passholder}
-                                <img
-                                    src="/icons/pass.png"
-                                    alt=""
-                                    class="w-4 h-4"
-                                />
-                            {/if}
-                            <p class="text-white">
-                                {message.user.username}:
-                            </p>
-                        </div>
-                    </div>
-                {/if}
-                <div
-                    class="text-3xl terminal-glow leading-snug text-lime-400 font-mono -tracking-widest"
-                >
+                <div class="py-0 font-mono text-2xl text-white">
+                    <span
+                        class={message.user.username === currentUser
+                            ? "text-cyan-400"
+                            : "text-lime-400"}
+                    >
+                        {message.user.username === currentUser
+                            ? currentUser
+                            : message.user.username}
+                    </span>
                     {message.content}
                 </div>
             </div>
-        {/if}
+        </div>
     {/each}
 </div>
 
 <style>
     .terminal-glow {
         text-shadow:
-            0 0 1px (255, 255, 255)
-            0 0 2px (255, 255, 255)
-            0 0 3px (255, 255, 255)
-            0 0 4px (255, 255, 255);
+            0 0 1px rgba(255, 255, 255),
+            0 0 2px rgba(255, 255, 255);
     }
 </style>

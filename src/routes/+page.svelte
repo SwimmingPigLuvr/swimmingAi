@@ -4,11 +4,12 @@
   import ChatBox from "../lib/components/ChatBox.svelte";
   import { chat, type Message } from "../lib/stores/chatStore";
   import Terminal from "../lib/components/Terminal.svelte";
+  import SoundCloud from "../lib/components/SoundCloud.svelte";
 
   const currentUser = "SwimmingPigLuvr";
 
-  let chatBox = true;
-  let terminal = false;
+  let chatBox = false;
+  let terminal = true;
 
   let audio: HTMLAudioElement;
   let pollingInterval: NodeJS.Timeout;
@@ -84,8 +85,10 @@
   }
 </script>
 
-{#if chatBox}
-  <ChatBox {currentUser} />
-{:else if terminal}
-  <Terminal {currentUser} />
-{/if}
+<body class="bg-transparent">
+  {#if chatBox}
+    <ChatBox {currentUser} />
+  {:else if terminal}
+    <Terminal {currentUser} />
+  {/if}
+</body>

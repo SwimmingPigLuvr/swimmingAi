@@ -138,7 +138,7 @@ export async function generatePersonalizedResponse(
 
   // conversation history
   const messages = [
-    { role: 'system', content: memoryFileContent },
+    { role: 'system', content: `${memoryFileContent}\nPlease keep responses at a minimum a word or short phrase, and at a maximum of 3 sentences. Please stay concise and to the point.` },
   ];
 
   // add prev interactions
@@ -243,8 +243,26 @@ export function createWebSocketConnection() {
       console.log(`Received message:`, JSON.stringify(message, null, 2));
 
       if (message.event === 'CHAT') {
+        const senderAddress = message.data.event.sender.attributes.address;
         const senderName = message.data.event.sender.attributes.name;
         const chatMessage = message.data.event.content;
+
+        let userPfp = null;
+        let userTwitterUsername = senderName; // default to existing name
+
+        try {
+          const response = await fetch(`https://sanko.tv/api/user/search/${senderAddress}`);
+          const userData = await response.json();
+
+          if (userData && userData[0] && userData[0].twitterImg) {
+            userPfp = userData[0].twitterImg;
+            userTwitterName = userData[0].twitterUsername;
+          } else {
+            console.log('no twitter pfp found for ', senderAddress);
+          }
+        } catch (error) {
+          console.error('error fetching x profile:', error);
+        }
 
         // Check if the message might be from a bot
         if (isPotentialBotMessage(chatMessage)) {
@@ -280,6 +298,7 @@ export function createWebSocketConnection() {
           id: message.data.eventHash,
           user: {
             username: senderName,
+            pfp: userPfp || '/pfps/default.png',
           },
           content: chatMessage,
           timestamp: message.data.timestamp,
@@ -293,7 +312,7 @@ export function createWebSocketConnection() {
         const aiResponseMessage: Message = {
           id: uuidv4(),
           user: {
-            username: 'SwimmingPigLuvr',
+            username: 'swimBot',
             pfp: '/pfps/swimming.png',
           },
           content: responseText,
